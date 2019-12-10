@@ -1,19 +1,22 @@
 <?php
 
-function square() {
-    if(isset($_POST['submit'])) {
-        $x = $_POST['number'];
-        $answer = $x * $x;
-        return $answer;
-    }
+if (isset($_POST['submit'])) {
+    $num = $_POST['submit'] +1;
+} else {
+    $num = 0;
 }
 
 ?>
-<form method="post">
-    <p>Ka pakelti kvadratu</p>
-    <input type="number" name="number">
-    <button type="submit" name="submit">Submit</button>
-</form>
-<h2>Atsakymas: <?php print square(); ?></h2>
+
+<html>
+    <head>
+        <title>Class work</title>
+    </head>
+    <body>
+        <form method="post">
+            <input type="submit" name="submit" value="<?php print $num; ?>">
+        </form>
+    </body>
+</html>
 
 
