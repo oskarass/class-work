@@ -1,64 +1,98 @@
 <?php
 
-$status = "";
-$displayCert = false;
+require_once ('functions/form/core.php');
+require_once ('functions/form/validators.php');
+require_once ('functions/html.php');
 
-if (isset($_POST['submit'])) {
-    $name = $_POST['name'];
-    $lastname = $_POST['lastname'];
-    $age = $_POST['age'];
-    $level = $_POST['level'];
+function form_success(&$form, $input) {
+    $x = $input['x'];
+    $y = $input['y'];
+    $sum = $x + $y;
+    var_dump($sum);
+}
 
-    if (empty($name) || empty($lastname) || empty($age) || empty($level)) {
-        $status = "All fields must be filled!";
-    } else {
-        if (!preg_match("/[a-zA-Z-'\s]+$/", $name) || !preg_match("/[a-zA-Z-'\s]+$/", $lastname)) {
-            $status = "Enter a valid Name and Last name!";
-        } elseif (is_int($age)) {
-            $status = "Only numbers required";
-        } else {
-            $displayCert = true;
-            $name = "Name: $name";
-            $lastname = "Last name: $lastname";
-            $age = "Age: $age";
-            $level = "Level: $level";
-        }
-    }
+function form_fail(&$form, $input) {
+    var_dump('Klaida');
+}
 
+$form = [
+    'callbacks' => [
+        'success' => 'form_success',
+        'fail' => 'form_fail'
+    ],
+    'attr' => [
+//        'action' => 'index.php',
+        'method' => 'POST',
+        'class' => 'my-form',
+        'id' => 'login-form',
+    ],
+    'fields' => [
+        'x' => [
+            'filter' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
+            'label' => 'X value',
+            'type' => 'select',
+            'validators' => [
+                'validate_field_not_empty',
+                'validate_is_number'
+            ],
+            'option' => [
+                'option_one',
+                'option_two',
+            ],
+            'value' => '',
+            'extra' => [
+                'attr' => [
+                    'placeholder' => 'number',
+                ]
+            ]
+        ],
+        'y' => [
+            'filter' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
+            'label' => 'Y value',
+            'type' => 'select',
+            'validators' => [
+                'validate_field_not_empty',
+                'validate_is_number'
+            ],
+            'option' => [
+                'option_one',
+                'option_two',
+            ],
+            'value' => '',
+            'extra' => [
+                'attr' => [
+                    'placeholder' => 'number',
+                ]
+            ]
+        ]
+    ],
+    'buttons' => [
+        'save' => [
+            'title' => 'Submit',
+            'extra' => [
+                'attr' => [
+                    'class' => 'save-btn',
+                ]
+            ]
+        ]
+    ],
+];
+
+if (!empty($_POST)) {
+    $safe_input = get_filtered_input($form);
+    $success = validate_form($form, $safe_input);
+} else {
+    $success = false;
 }
 
 ?>
 
 <html>
-<head>
-    <title>Class work</title>
-</head>
-<body>
-    <h4>Dumbass Form</h4>
-    <form method="post">
-        <input type="name" name="name" placeholder="Name" required>
-        <input type="name" name="lastname" placeholder="Last name" required>
-        <input type="number" name="age" placeholder="Age">
-        <select name="level">
-            <option>Pradedantysis</option>
-            <option>Pazenges</option>
-            <option>Profesionalas</option>
-        </select>
-        <input type="submit" name="submit" value="Generate form">
-    </form>
-    <h3><?php print $status; ?></h3>
-    
-    <?php if($displayCert) : ?>
-        <div>
-            <h2>Dumbass Certificate</h2>
-            <h4><?php print $name; ?></h4>
-            <h4><?php print $lastname; ?></h4>
-            <h4><?php print $age; ?></h4>
-            <h4><?php print $level; ?></h4>
-            <img src="http://www.liberaldictionary.com/wp-content/uploads/2019/01/dumbass-3.jpg">
-        </div>
-    <?php endif; ?>
-</body>
+    <body>
+        <?php if($success): ?>
+            <h1>ZJBS</h1>
+        <?php endif; ?>
+        <?php require('templates/form.tpl.php'); ?>
+
+    </body>
 </html>
-
-
