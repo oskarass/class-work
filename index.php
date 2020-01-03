@@ -134,22 +134,24 @@ $decoded_array = file_to_array($file);
         <?php if(!isset($_COOKIE['user_id'])) :?>
             <?php require('templates/form.tpl.php'); ?>
         <?php endif; ?>
-        <table>
-            <thead>
-                <tr>
-                    <td>Username</td>
-                    <td>Password</td>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach($decoded_array as $input_data => $row): ?>
-                <tr>
-                    <?php foreach($row as $value): ?>
-                        <td><?php print $value; ?></td>
-                    <?php endforeach; ?>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <?php if(isset($_COOKIE['user_id'])) :?>
+            <table>
+                <thead>
+                    <tr>
+                        <td>Username</td>
+                        <td>Password</td>
+                    </tr>
+                </thead>
+                <tbody>
+                        <?php foreach($decoded_array as $input_data => $row): ?>
+                        <tr>
+                            <?php foreach($row as $value): ?>
+                                <td><?php print $value; ?></td>
+                            <?php endforeach; ?>
+                        </tr>
+                        <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </body>
 </html>
