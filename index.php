@@ -3,16 +3,19 @@
 require_once ('functions/form/core.php');
 require_once ('functions/form/validators.php');
 require_once ('functions/html.php');
+require_once ('functions/file.php');
 
 function form_success(&$form, $input) {
-    $x = $input['x'];
-    $y = $input['y'];
-    $sum = $x + $y;
-    var_dump($sum);
+    $form['message'] = 'Form success';
+    unset($input['pass_repeat']);
+    $file = 'data/db.txt';
+    $array = file_to_array($file);
+    $array[] = $input;
+    array_to_file($array, $file);
 }
 
 function form_fail(&$form, $input) {
-    var_dump('Klaida');
+    $form['message'] = 'Form failed';
 }
 
 $form = [
@@ -21,19 +24,27 @@ $form = [
         'fail' => 'form_fail'
     ],
     'attr' => [
-//        'action' => 'index.php',
         'method' => 'POST',
         'class' => 'my-form',
         'id' => 'login-form',
     ],
+    'validators' => [
+        'validate_fields_match' => [
+            'password', 'pass_repeat'
+        ],
+    ],
     'fields' => [
-        'x' => [
+        'name' => [
             'filter' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
-            'label' => 'X value',
+            'label' => 'Username',
             'type' => 'select',
             'validators' => [
                 'validate_field_not_empty',
-                'validate_is_number'
+                'validate_is_space',
+                'validate_string_length' => [
+                        'min' => 6,
+                        'max' => 20,
+                ]
             ],
             'option' => [
                 'option_one',
@@ -42,17 +53,17 @@ $form = [
             'value' => '',
             'extra' => [
                 'attr' => [
-                    'placeholder' => 'number',
+                    'placeholder' => 'Username',
+                    'class' => 'form-control',
                 ]
             ]
         ],
-        'y' => [
+        'password' => [
             'filter' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
-            'label' => 'Y value',
-            'type' => 'select',
+            'label' => 'Password',
+            'type' => 'password',
             'validators' => [
-                'validate_field_not_empty',
-                'validate_is_number'
+                'validate_password',
             ],
             'option' => [
                 'option_one',
@@ -61,17 +72,37 @@ $form = [
             'value' => '',
             'extra' => [
                 'attr' => [
-                    'placeholder' => 'number',
+                    'placeholder' => 'Password',
+                    'class' => 'form-control',
+                ]
+            ]
+        ],
+        'pass_repeat' => [
+            'filter' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
+            'label' => 'Repeat password',
+            'type' => 'password',
+            'validators' => [
+                'validate_field_not_empty',
+            ],
+            'option' => [
+                'option_one',
+                'option_two',
+            ],
+            'value' => '',
+            'extra' => [
+                'attr' => [
+                    'placeholder' => 'Repeat password',
+                    'class' => 'form-control',
                 ]
             ]
         ]
     ],
     'buttons' => [
         'save' => [
-            'title' => 'Submit',
+            'title' => 'Ar as normalus?',
             'extra' => [
                 'attr' => [
-                    'class' => 'save-btn',
+                    'class' => 'btn btn-success save-btn',
                 ]
             ]
         ]
@@ -85,14 +116,34 @@ if (!empty($_POST)) {
     $success = false;
 }
 
+$file = 'data/db.txt';
+$decoded_array = file_to_array($file);
+
 ?>
 
 <html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="style.css">
+    </head>
     <body>
-        <?php if($success): ?>
-            <h1>ZJBS</h1>
-        <?php endif; ?>
         <?php require('templates/form.tpl.php'); ?>
-
+        <table>
+            <thead>
+                <tr>
+                    <td>Username</td>
+                    <td>Password</td>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach($decoded_array as $input_data => $row): ?>
+                <tr>
+                    <?php foreach($row as $value): ?>
+                        <td><?php print $value; ?></td>
+                    <?php endforeach; ?>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </body>
 </html>
