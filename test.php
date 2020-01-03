@@ -1,15 +1,19 @@
 <?php
 
-var_dump($_COOKIE);
+session_start();
 
+if(!isset($_COOKIE['PHPSESSID'])) {
+    header('location:/classwork/test.php');
+} else {
+    $_SESSION['user_id'] = $_COOKIE['PHPSESSID'];
+    $user_id = $_SESSION['user_id'];
+}
 
-$user_id = $_COOKIE['user_id'] ?? uniqid();
 $visits = ($_COOKIE['visits'] ?? 0) +1;
 
 setcookie('visits', $visits, time() +3600, '/');
-setcookie('user_id', $user_id, time() + 3600, '/');
 
 ?>
 
-<h1> <?php print $user_id; ?> </h1>
-<h2> <?php print $visits; ?> </h2>
+<h1><?php print $user_id; ?></h1>
+<h2><?php print $visits; ?></h2>

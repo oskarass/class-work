@@ -5,17 +5,20 @@ require_once ('functions/form/validators.php');
 require_once ('functions/html.php');
 require_once ('functions/file.php');
 
-
 var_dump($_COOKIE);
+
 function form_success(&$form, $input) {
     $form['message'] = 'Form success';
+
     unset($input['pass_repeat']);
     $file = 'data/db.txt';
     $array = file_to_array($file);
     $array[] = $input;
     array_to_file($array, $file);
-    $user_id = $_COOKIE['user_id'] ?? uniqid();
-    setcookie('user_id', $user_id, time() + 3600, '/');
+
+    $_COOKIE['user_id'] = $_COOKIE['user_id'] ?? uniqid();
+    setcookie('user_id', $_COOKIE['user_id'], time() + 3600, '/');
+    header('location:index.php');
 }
 
 function form_fail(&$form, $input) {
@@ -113,6 +116,8 @@ $form = [
     ],
 ];
 
+$show_form = isset($_COOKIE['user_id']) ? false : true;
+
 if (!empty($_POST)) {
     $safe_input = get_filtered_input($form);
     $success = validate_form($form, $safe_input);
@@ -131,10 +136,9 @@ $decoded_array = file_to_array($file);
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <?php if(!isset($_COOKIE['user_id'])) :?>
+        <?php if($show_form) :?>
             <?php require('templates/form.tpl.php'); ?>
-        <?php endif; ?>
-        <?php if(isset($_COOKIE['user_id'])) :?>
+        <?php else: ?>
             <table>
                 <thead>
                     <tr>
