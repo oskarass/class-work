@@ -64,3 +64,14 @@ function validate_fields_match($field_value, &$field, $params) {
     }
     return true;
 }
+
+function validate_username($field_value, &$field) {
+    $array = file_to_array(DB_FILE);
+    foreach($array as $key => $value) {
+        if($value['name'] === $field_value) {
+            $field['error'] = 'User already exists!';
+            return false;
+        }
+    }
+    return true;
+}

@@ -1,25 +1,20 @@
 <?php
 
-require_once ('functions/form/core.php');
+require('bootloader.php');
+
 require_once ('functions/form/validators.php');
-require_once ('functions/html.php');
-require_once ('functions/file.php');
 
 function form_success(&$form, $input) {
-    $form['message'] = 'Form success';
-
-    unset($input['pass_repeat']);
-    $file = 'data/db.txt';
-    $array = file_to_array($file);
+    $array = file_to_array(DB_FILE);
     $array[] = $input;
-    array_to_file($array, $file);
+    array_to_file($array, DB_FILE);
+
+    $_COOKIE['user_id'] = $_COOKIE['user_id'] ?? uniqid();
+    setcookie('user_id', $_COOKIE['user_id'], time() + 3600, '/');
 }
 
 function form_fail(&$form, $input) {
     $form['message'] = 'Form failed';
-    setcookie('username', $input['name'], time() + 3600, '/');
-    setcookie('password', $input['password'], time() + 3600, '/');
-    var_dump($_COOKIE);
 }
 
 $form = [
@@ -44,10 +39,10 @@ $form = [
             'type' => 'select',
             'validators' => [
                 'validate_field_not_empty',
-                'validate_is_space',
+                'validate_username',
                 'validate_string_length' => [
-                        'min' => 6,
-                        'max' => 20,
+                    'min' => 6,
+                    'max' => 20,
                 ]
             ],
             'option' => [
@@ -121,33 +116,25 @@ if (!empty($_POST)) {
 }
 
 $file = 'data/db.txt';
-$decoded_array = file_to_array($file);
+$decoded_array = file_to_array(DB_FILE);
+
+$h1 = 'Registracija sekminga';
+$show_form = isset($_COOKIE['user_id']) ? true : false;
+
+$table = !$show_form ? prepare_table(file_to_array(DB_FILE)) : null;
 
 ?>
 
 <html>
-    <head>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <link rel="stylesheet" href="style.css">
-    </head>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
     <body>
+        <?php if ($show_form): ?>
+            <h1><?php print $h1; ?></h1>
+        <?php else: ?>
             <?php require('templates/form.tpl.php'); ?>
-            <table>
-                <thead>
-                    <tr>
-                        <td>Username</td>
-                        <td>Password</td>
-                    </tr>
-                </thead>
-                <tbody>
-                        <?php foreach($decoded_array as $input_data => $row): ?>
-                        <tr>
-                            <?php foreach($row as $value): ?>
-                                <td><?php print $value; ?></td>
-                            <?php endforeach; ?>
-                        </tr>
-                        <?php endforeach; ?>
-                </tbody>
-            </table>
+        <?php endif; ?>
     </body>
 </html>
