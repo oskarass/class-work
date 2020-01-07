@@ -1,153 +1,31 @@
 <?php
 
-require_once ('functions/form/core.php');
+require('bootloader.php');
+
 require_once ('functions/form/validators.php');
-require_once ('functions/html.php');
-require_once ('functions/file.php');
 
-function form_success(&$form, $input) {
-    $form['message'] = 'Form success';
+is_logged_in();
 
-    unset($input['pass_repeat']);
-    $file = 'data/db.txt';
-    $array = file_to_array($file);
-    $array[] = $input;
-    array_to_file($array, $file);
-}
-
-function form_fail(&$form, $input) {
-    $form['message'] = 'Form failed';
-    setcookie('username', $input['name'], time() + 3600, '/');
-    setcookie('password', $input['password'], time() + 3600, '/');
-    var_dump($_COOKIE);
-}
-
-$form = [
-    'callbacks' => [
-        'success' => 'form_success',
-        'fail' => 'form_fail'
-    ],
-    'attr' => [
-        'method' => 'POST',
-        'class' => 'my-form',
-        'id' => 'login-form',
-    ],
-    'validators' => [
-        'validate_fields_match' => [
-            'password', 'pass_repeat'
-        ],
-    ],
-    'fields' => [
-        'name' => [
-            'filter' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
-            'label' => 'Username',
-            'type' => 'select',
-            'validators' => [
-                'validate_field_not_empty',
-                'validate_is_space',
-                'validate_string_length' => [
-                        'min' => 6,
-                        'max' => 20,
-                ]
-            ],
-            'option' => [
-                'option_one',
-                'option_two',
-            ],
-            'value' => '',
-            'extra' => [
-                'attr' => [
-                    'placeholder' => 'Username',
-                    'class' => 'form-control',
-                ]
-            ]
-        ],
-        'password' => [
-            'filter' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
-            'label' => 'Password',
-            'type' => 'password',
-            'validators' => [
-                'validate_password',
-            ],
-            'option' => [
-                'option_one',
-                'option_two',
-            ],
-            'value' => '',
-            'extra' => [
-                'attr' => [
-                    'placeholder' => 'Password',
-                    'class' => 'form-control',
-                ]
-            ]
-        ],
-        'pass_repeat' => [
-            'filter' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
-            'label' => 'Repeat password',
-            'type' => 'password',
-            'validators' => [
-                'validate_field_not_empty',
-            ],
-            'option' => [
-                'option_one',
-                'option_two',
-            ],
-            'value' => '',
-            'extra' => [
-                'attr' => [
-                    'placeholder' => 'Repeat password',
-                    'class' => 'form-control',
-                ]
-            ]
-        ]
-    ],
-    'buttons' => [
-        'save' => [
-            'title' => 'Ar as normalus?',
-            'extra' => [
-                'attr' => [
-                    'class' => 'btn btn-success save-btn',
-                ]
-            ]
-        ]
-    ],
-];
-
-if (!empty($_POST)) {
-    $safe_input = get_filtered_input($form);
-    $success = validate_form($form, $safe_input);
-} else {
-    $success = false;
-}
-
-$file = 'data/db.txt';
-$decoded_array = file_to_array($file);
+$show_form = isset($_SESSION['user_id']) ? true : false;
 
 ?>
 
 <html>
     <head>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-            <?php require('templates/form.tpl.php'); ?>
-            <table>
-                <thead>
-                    <tr>
-                        <td>Username</td>
-                        <td>Password</td>
-                    </tr>
-                </thead>
-                <tbody>
-                        <?php foreach($decoded_array as $input_data => $row): ?>
-                        <tr>
-                            <?php foreach($row as $value): ?>
-                                <td><?php print $value; ?></td>
-                            <?php endforeach; ?>
-                        </tr>
-                        <?php endforeach; ?>
-                </tbody>
-            </table>
+    <?php if($show_form): ?>
+    <div class="text-center">
+        <img src="https://i.kym-cdn.com/photos/images/newsfeed/000/114/139/tumblr_lgedv2Vtt21qf4x93o1_40020110725-22047-38imqt.jpg">
+        <h3 class="mt-5">Username: <?php print $_SESSION['username']; ?></h3>
+        <h3>User ID: <?php print $_SESSION['user_id']; ?></h3>
+
+        <a href="logout.php" class="btn btn-primary mt-5">Log fucking out</a>
+    </div>
+    <?php else: ?>
+        <?php header('location:login.php'); ?>
+    <?php endif; ?>
     </body>
 </html>

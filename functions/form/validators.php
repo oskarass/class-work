@@ -3,7 +3,7 @@
 function validate_field_not_empty($field_input, &$field)
 {
     if (empty($field_input)) {
-        $field['error'] = "Laukelis tuscias";
+        $field['error'] = "Field is empty";
         return false;
     }
     return true;
@@ -12,7 +12,7 @@ function validate_field_not_empty($field_input, &$field)
 function validate_is_number($field_value, &$field)
 {
     if (!is_numeric($field_value)) {
-        $field['error'] = 'Laukelis privalo buti skaicius';
+        $field['error'] = 'Field must be a number';
         return false;
     }
     return true;
@@ -74,4 +74,14 @@ function validate_username($field_value, &$field) {
         }
     }
     return true;
+}
+
+function validate_login($field_value) {
+    $array = file_to_array(DB_FILE);
+    foreach ($array as $key => $value) {
+        if($value['name'] === $field_value['name'] && $value['password'] === $field_value['password']) {
+            return true;
+        }
+    }
+    return false;
 }

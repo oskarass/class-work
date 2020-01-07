@@ -1,1 +1,1 @@
-[{"name":"asdasdasd","password":"asdasd","pass_repeat":"asdasd"},{"name":"dsadsadsa","password":"asdasd","pass_repeat":"asdasd"},{"name":"fdsadasfads","password":"asdasd","pass_repeat":"asdasd"}]
+[{"name":"asdasdasd","password":"asdasd","pass_repeat":"asdasd"}]
